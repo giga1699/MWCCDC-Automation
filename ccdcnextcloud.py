@@ -14,6 +14,9 @@ class CCDCNextcloud:
         response = requests.request("DELETE", "https://" + self.nextcloudUser + ":" + self.nextcloudToken + "@" + self.nextcloudDomain + "/ocs/v1.php/cloud/users/" + username, headers=headers)
         if self.debug:
             print(response.status_code, response.text)
+        
+        if not re.search("<statuscode>100</statuscode>", response.text):
+            raise Exception(f'Unable to delete Nextcloud user "{username}"', response.status_code, response.text)
     
     def createGroup(self, groupName):
         #Create the group in Nextcloud
