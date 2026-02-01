@@ -167,6 +167,12 @@ for team in compTeamInfo:
                 if response.status_code != 204:
                     # Error deleting user
                     zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t delete authentik user {username} with pk of {str(userdata["authentik"]["pk"])}')
+            
+            # Delete the Nextcloud user
+            try:
+                nextcloud.deleteUser(username)
+            except Exception as ex:
+                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Issue deleting Nextcloud user {username}.\r\nException:\r\n```\r\n{ex}\r\n```')
 
             # Look for Zulip user info
             if 'zulip' in userdata:
