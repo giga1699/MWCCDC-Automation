@@ -2,7 +2,7 @@ import requests
 import json
 
 class CCDCMantis:
-    def createUser(self, username):
+    def createUser(self, username, accessLevel="reporter"):
         if self.debug:
             print(f'Creating Mantis user {username}')
         
@@ -11,7 +11,10 @@ class CCDCMantis:
             'Content-Type': 'application/json'
         }
         mantisPayload = json.dumps({
-            "username": username
+            "username": username,
+            "access_level": {
+                "name": accessLevel
+            },
         })
         response = requests.request("POST", "https://" + self.mantisDomain + "/api/rest/users/", headers=mantisHeader, data=mantisPayload)
 
@@ -126,6 +129,23 @@ class CCDCMantis:
         
         if response.status_code != 204:
             raise Exception(f'Unable to add Mantis user {username} to project with ID {projectID}', response.status_code, response.text)
+    
+    def getAllProjects(self):
+        if self.debug:
+            print(f'Getting all projects')
+        
+        mantisHeader = {
+            "Authorization": self.mantisToken,
+        }
+        response = requests.request("GET", "https://" + self.mantisDomain + "/api/rest/projects/", headers=mantisHeader)
+
+        if self.debug:
+            print(response.status_code, response.text)
+        
+        if response.status_code != 200:
+            raise Exception(f'Unable to get all projects', response.status_code, response.text)
+        
+        return response.json()
 
     def __init__(self, mantisToken, mantisDomain="support.ccdc.events", debug=False):
         self.mantisToken = mantisToken
