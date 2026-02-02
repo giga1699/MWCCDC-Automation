@@ -129,9 +129,13 @@ zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Trying t
 
 # Get Zulip channels
 zulipChannels = zulipAdmin.getAllChannels()['streams']
+if debug:
+    print(zulipChannels)
 
 # Get Mantis projects
 mantisProjects = mantis.getAllProjects()['projects']
+if debug:
+    print(mantisProjects)
 
 # Get a list of black team usernames from authentik
 payload = json.dumps({
@@ -236,3 +240,5 @@ for userObj in response.json()['users_obj']:
             mantis.addUserToProject(userObj['username'], project['id'], 'manager')
         except Exception as ex:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding Mantis user {userObj["username"]} to project {project["id"]}.\r\nException:```\r\n{ex}\r\n```')
+
+zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Support user sync complete!")

@@ -122,6 +122,10 @@ if debug:
 
 # Create the Zulip connection
 zulip = ccdczulip.CCDCZulip(os.getenv('zulipEmail'), os.getenv('zulipToken'), debug=debug)
+try:
+    zulipAdmin = ccdczulip.CCDCZulip(os.getenv('zulipAdminEmail'), os.getenv('zulipAdminToken'), debug=debug)
+except:
+    print("Couldn't create zulipAdmin connection")
 
 # Create the Nextcloud connection
 nextcloud = ccdcnextcloud.CCDCNextcloud(os.getenv('ncAppUser'), os.getenv('ncAppPass'), os.getenv('ncDomain'), debug=debug)
@@ -150,7 +154,7 @@ if debug:
 # Try to get the groups, but it probably won't work
 zulipGroups = {}
 try:
-    for group in zulip.getAllGroups()['user_groups']:
+    for group in zulipAdmin.getAllGroups()['user_groups']:
         if debug:
             print(f'Group "{group["name"]}" had ID of {group["id"]}')
 
@@ -495,16 +499,16 @@ with open(teamPassCSV, newline='') as file:
     if checkZulipGroupMembership:
         for group, groupID in compTeamInfo[userInfo['teamNum']]['groups']['zulip'].items():
             try:
-                if not zulip.isUserInGroup(str(compTeamInfo[userInfo['teamNum']]['users'][userInfo['username']]['zulip']['id']), str(groupID)):
+                if not zulipAdmin.isUserInGroup(str(compTeamInfo[userInfo['teamNum']]['users'][userInfo['username']]['zulip']['id']), str(groupID)):
                     zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Zulip user {userInfo["username"]} isn\'t in the Zulip group {group}! Attempting to assign them...')
-                    zulip.addUserToGroup(str(compTeamInfo[userInfo['teamNum']]['users'][userInfo['username']]['zulip']['id']), str(groupID))
+                    zulipAdmin.addUserToGroup(str(compTeamInfo[userInfo['teamNum']]['users'][userInfo['username']]['zulip']['id']), str(groupID))
             except Exception as ex:
-                if not re.search("This endpoint does not accept bot requests", str(ex)):
-                    zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error checking/assigning group membership for Zulip user {userInfo["username"]}!\r\nException:\r\n```\r\n{ex}\r\n```')
-                else:
+                if re.search("This endpoint does not accept bot requests", str(ex)):
                     zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error checking/assigning group membership for Zulip user {userInfo["username"]}!\r\nBots can\'t use the specified endpoint.\r\nGiving up on checking group memberships!\r\nAdministrators/Ops will need to manually verify group memberships.')
                     checkZulipGroupMembership = False
                     break
+                elif not re.search("User \d+ is already a member of this group", str(ex)):
+                    zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error checking/assigning group membership for Zulip user {userInfo["username"]}!\r\nException:\r\n```\r\n{ex}\r\n```')
     
     # Check if the user is subscribed to all the team channels
     for channel, channelID in compTeamInfo[userInfo['teamNum']]['channels'].items():

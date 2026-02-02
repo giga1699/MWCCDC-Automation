@@ -255,7 +255,7 @@ class CCDCZulip:
         # Check for some other kind of error
         self.checkError(response)
 
-        if response.json()['is_user_group_member'] == "true":
+        if response.json()['is_user_group_member']:
             return True
         
         return False
