@@ -148,6 +148,21 @@ class CCDCZulip:
         
         return False
     
+    def getUserIDByEmail(self, email):
+        while True:
+            response = requests.request("GET", f'https://{self.zulipEmail}:{self.zulipToken}@{self.zulipDomain}/api/v1/users/{email}')
+
+            if self.debug:
+                print(response.text)
+            
+            if not self.zulipBackoff(response):
+                break
+        
+        if response.json()['result'] == "success":
+            return response.json()['user']["user_id"]
+        else:
+            return False
+    
     def deleteChannelTopic(self, channelID, channelTopic):
         while True:
             # Find all topics in each channel
