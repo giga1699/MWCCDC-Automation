@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import ccdczulip
 import ccdcnextcloud
+import ccdcmantis
 import re
 import json
 import csv
@@ -15,6 +16,7 @@ debug = False
 checkZulipGroupMembership = True
 
 # Defaults
+mantisMasterProjectID="1"
 teamPassCSV="teampasswords.csv"
 teamNameRegex="team\d+[a-i]"
 teamUserDomainName="@comp.ccdc.events"
@@ -64,6 +66,8 @@ defaultZulipGroups = {
 ##### email, id
 #### Authentik
 ##### pk
+#### Mantis
+##### id
 ### Zulip Channels
 #### Channel name: ID
 ### Folders (nextcloud)
@@ -71,6 +75,8 @@ defaultZulipGroups = {
 ### Groups
 #### Zulip {name: id}
 #### Nextcloud [list]
+### Support
+#### Projects
 ### URLs
 #### Nextcloud-Upload-Share
 #### Nextcloud-Upload-Share-Short
@@ -85,6 +91,8 @@ if os.getenv('DEBUG'):
     debug = True
 
 # Overwrite defaults, if defined in env var
+if os.getenv('mantisMasterProjectID'):
+    teamPassCSV=os.getenv('mantisMasterProjectID')
 if os.getenv('teamPassCSV'):
     teamPassCSV=os.getenv('teamPassCSV')
 if os.getenv('teamNameRegex'):
@@ -117,6 +125,9 @@ zulip = ccdczulip.CCDCZulip(os.getenv('zulipEmail'), os.getenv('zulipToken'), de
 
 # Create the Nextcloud connection
 nextcloud = ccdcnextcloud.CCDCNextcloud(os.getenv('ncAppUser'), os.getenv('ncAppPass'), os.getenv('ncDomain'), debug=debug)
+
+# Create the Mantis connection
+mantis = ccdcmantis.CCDCMantis(os.getenv('mantisToken'), os.getenv('mantisDomain'), debug=debug)
 
 # Let's kick this off!
 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Beginning competition warm-up script...")
@@ -200,6 +211,7 @@ with open(teamPassCSV, newline='') as file:
             "channels": {},
             "folders": {},
             "groups": {},
+            "support": {},
             "urls": {}
         }})
 
@@ -218,6 +230,16 @@ with open(teamPassCSV, newline='') as file:
                     if 'zulip' not in compTeamInfo[f'{userInfo["teamNum"]}']['groups']:
                         compTeamInfo[f'{userInfo["teamNum"]}']['groups'].update({'zulip': {}})
                     compTeamInfo[f'{userInfo["teamNum"]}']['groups']['zulip'].update({group: groupID})
+        
+        # Create a Mantis project for the team
+        try:
+            if mantisMasterProjectID:
+                teamMantisProjectID = mantis.createProject("Team " + userInfo['teamNum'], mantisMasterProjectID)
+            else:
+                teamMantisProjectID = mantis.createProject("Team " + userInfo['teamNum'])
+            compTeamInfo[userInfo['teamNum']]['support'].update({"MantisProjID": teamMantisProjectID})
+        except Exception as ex:
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to create the Mantis project "Team {userInfo["teamNum"]}".\r\nException:\r\n```\r\n{ex}\r\n```')
         
         # Make sure there's a Nextcloud Group created, and add that information to compTeamInfo
         try:
@@ -441,6 +463,15 @@ with open(teamPassCSV, newline='') as file:
         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'@*{zulipOperationsGroup}* **ERROR**: Unable to set authentik user {userInfo["username"]} password!\r\nResponse:\r\n```\r\n{response.text}\r\n```')
         print(response.text)
         exit(-1)
+    
+    # Create the Mantis user, and add them to the team project
+    try:
+        mantisUserID = mantis.createUser(userInfo['username'])
+        mantis.addUserToProject(userInfo['username'], teamMantisProjectID)
+        compTeamInfo[f'{userInfo["teamNum"]}']['users'][userInfo['username']].update({"mantis": {"id": mantisUserID}})
+    except Exception as ex:
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to create the Mantis user and/or add them to the team project.\r\nException:```\r\n{ex}\r\n```')
+
 
     # Check if we know about the Zulip user
     if userInfo['username'] in zulipTeamUsers:

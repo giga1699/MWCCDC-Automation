@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import ccdczulip
 import ccdcnextcloud
+import ccdcmantis
 import re
 import json
 import csv
@@ -121,6 +122,9 @@ zulip = ccdczulip.CCDCZulip(os.getenv('zulipEmail'), os.getenv('zulipToken'), de
 # Create the Nextcloud connection
 nextcloud = ccdcnextcloud.CCDCNextcloud(os.getenv('ncAppUser'), os.getenv('ncAppPass'), os.getenv('ncDomain'), debug=debug)
 
+# Create the Mantis connection
+mantis = ccdcmantis.CCDCMantis(os.getenv('mantisToken'), os.getenv('mantisDomain'), debug=debug)
+
 # authentik header and domain
 authentikHeaders = {
   'Content-Type': 'application/json',
@@ -167,6 +171,13 @@ for team in compTeamInfo:
                 if response.status_code != 204:
                     # Error deleting user
                     zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t delete authentik user {username} with pk of {str(userdata["authentik"]["pk"])}')
+            
+            # Delete Mantis user
+            if 'mantis' in userdata:
+                try:
+                    mantis.deleteUser(userdata['mantis']['id'])
+                except Exception as ex:
+                    zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to delete Mantis user {username}.\r\nException:\r\n```\r\n{ex}\r\n```')
             
             # Delete the Nextcloud user
             try:
@@ -224,6 +235,14 @@ for team in compTeamInfo:
                         zulip.deleteChannelTopic(channelID, topic)
             except Exception as ex:
                 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t clear out Zulip channel messages for channel "{channelName}".\r\nException:\r\n```\r\n{ex}\r\n```')
+    
+    # Delete Mantis projects
+    if 'support' in compTeamInfo[team]:
+        if 'MantisProjID' in compTeamInfo[team]['support']:
+            try:
+                mantis.deleteProject(compTeamInfo[team]['support']['MantisProjID'])
+            except Exception as ex:
+                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to delete Mantis project with ID {compTeamInfo[team]["support"]["MantisProjID"]}.\r\nException:\r\n```{ex}\r\n```')
 
 
 
