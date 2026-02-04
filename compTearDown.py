@@ -261,6 +261,6 @@ try:
     
     # Delete the teampasswords.csv
     if os.path.isfile(teamPassCSV):
-        os.remote(teamPassCSV)
+        os.remove(teamPassCSV)
 except Exception as ex:
     zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t delete certain files from the system during cleanup. May need to manually remove them.\r\nException:\r\n```\r\n{ex}\r\n```')
