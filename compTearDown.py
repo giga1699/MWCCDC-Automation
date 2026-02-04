@@ -250,7 +250,6 @@ for team in compTeamInfo:
 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "We tore it down!")
 
 # Do some cleanup
-## TO-DO: Delete the compTeamInfo.txt file
 try:
     os.remove(compTeamInfoTXT)
     
@@ -259,5 +258,9 @@ try:
     for file in files:
         if re.match("Team-\d+-Upload-Link.txt", file):
             os.remove(file)
+    
+    # Delete the teampasswords.csv
+    if os.path.isfile(teamPassCSV):
+        os.remote(teamPassCSV)
 except Exception as ex:
     zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t delete certain files from the system during cleanup. May need to manually remove them.\r\nException:\r\n```\r\n{ex}\r\n```')

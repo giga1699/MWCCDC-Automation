@@ -116,6 +116,22 @@ if os.getenv('zulipOrangeChannelRegex'):
 if os.getenv('zulipGreenChannelRegex'):
     zulipGreenChannelRegex=os.getenv('zulipGreenChannelRegex')
 
+
+# Download the team password CSV, if the environment variable exists
+if os.getenv('teamPassDownloadURL'):
+    url = os.getenv('teamPassDownloadURL')
+    if debug:
+        print(f'Downloading team password CSV from "{url}"')
+    
+    r = requests.get(url)
+
+    try:
+        with open(teamPassCSV, 'wb') as f:
+            f.write(r.content)
+    except:
+        print(f'Unable to download the team password CSV! Exiting...')
+        exit(-1)
+
 # Output default values if debugging enabled
 if debug:
     print(f'Default values set for this run...\n\nTeam Name Regex: {teamNameRegex}\r\nzulipOperationsChannel: {zulipOperationsChannel}\r\nzulipOperationsTopic: {zulipOperationsTopic}')
