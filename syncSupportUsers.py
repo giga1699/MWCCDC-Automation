@@ -81,6 +81,10 @@ if os.getenv('authentikMasterBlackGroup'):
     teamPassCSV=os.getenv('authentikMasterBlackGroup')
 if os.getenv('authentikMasterGreenGroup'):
     teamPassCSV=os.getenv('authentikMasterGreenGroup')
+if os.getenv('authentikMasterGreenGroup'):
+    teamPassCSV=os.getenv('authentikMasterRedGroup')
+if os.getenv('authentikMasterWhiteGroup'):
+    teamPassCSV=os.getenv('authentikMasterWhiteGroup')
 if os.getenv('teamPassCSV'):
     teamPassCSV=os.getenv('teamPassCSV')
 if os.getenv('teamNameRegex'):
