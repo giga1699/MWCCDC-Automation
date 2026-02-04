@@ -288,6 +288,19 @@ for userObj in response.json()['users_obj']:
                 zulipAdmin.subscribeUserToChannel(zulipUserID, channel['name'])
     except Exception as ex:
         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding zulip ID {zulipUserID} to white team channel(s).\r\nException:```\r\n{ex}\r\n```')
+    
+    # Try to create Mantis user
+    try:
+        mantis.createUser(userObj['username'], "manager")
+    except Exception as ex:
+        if not re.search('That username is already being used', str(ex)):
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding Mantis user {userObj["username"]}.\r\nException:```\r\n{ex}\r\n```')
+    
+    for project in mantisProjects:
+        try:
+            mantis.addUserToProject(userObj['username'], project['id'], 'manager')
+        except Exception as ex:
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding Mantis user {userObj["username"]} to project {project["id"]}.\r\nException:```\r\n{ex}\r\n```')
 
 
 ## RED TEAM
