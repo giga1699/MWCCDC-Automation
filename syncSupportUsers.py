@@ -21,6 +21,7 @@ checkZulipGroupMembership = True
 authentikMasterBlackGroup="08a6f2b2-5566-433e-8413-52e08804dcaa"
 authentikMasterGreenGroup="07f57ea0-1f10-4981-949a-2d873a9cf49c"
 authentikMasterRedGroup="12a2505b-dad5-4f90-97ad-285e0f00b7a1"
+authentikMasterWhiteGroup="e05b8bba-c827-4668-8f32-819a9dc9aa1f"
 teamPassCSV="teampasswords.csv"
 teamNameRegex="team\d+[a-i]"
 teamUserDomainName="@comp.ccdc.events"
@@ -247,6 +248,46 @@ for userObj in response.json()['users_obj']:
         except Exception as ex:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding Mantis user {userObj["username"]} to project {project["id"]}.\r\nException:```\r\n{ex}\r\n```')
 
+
+## WHITE TEAM
+# Get a list of green team usernames from authentik
+payload = json.dumps({
+    "include_children": True,
+})
+response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterWhiteGroup}/', headers=authentikHeaders, data=payload)
+if debug:
+    print(response.status_code, response.text)
+
+if response.status_code != 200:
+    zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'@*Black Team* **ERROR**: Couldn\'t get a list of red team users using group pk {authentikMasterWhiteGroup}')
+    exit(-1)
+
+for userObj in response.json()['users_obj']:
+    if debug:
+        print(userObj['username'], userObj['name'], userObj['email'])
+    
+    # Try to create Zulip user
+    try:
+        randomPass = ''.join(random.sample(string.ascii_letters + string.digits, 30))
+        zulip.createUser(userObj['email'], randomPass, userObj['name'])
+    except Exception as ex:
+        if not re.search('Email is already in use', str(ex)):
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t create Zulip user with email {userObj["email"]}.\r\nException:\r\n```\r\n{ex}\r\n```')
+
+    zulipUserID = zulip.getUserIDByEmail(userObj['email'])
+    if zulipUserID:
+        try:
+            zulipAdmin.addUserToGroup(zulipUserID, defaultZulipGroups['White Team'])
+        except Exception as ex:
+            if not re.search('User \d+ is already a member of this group', str(ex)):
+                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t add Zulip user with email {userObj["email"]} to "White Team" group.\r\nException:\r\n```\r\n{ex}\r\n```')
+    
+    try:
+        for channel in zulipChannels:
+            if (re.match("white-team", channel['name'])) and zulipUserID:
+                zulipAdmin.subscribeUserToChannel(zulipUserID, channel['name'])
+    except Exception as ex:
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding zulip ID {zulipUserID} to white team channel(s).\r\nException:```\r\n{ex}\r\n```')
 
 
 ## RED TEAM
