@@ -549,5 +549,5 @@ if debug:
     print(compTeamInfo)
     print(json.dumps(compTeamInfo, indent=2))
 
-if os.path.isfile('syncSupportUsers.py'):
-    os.system('python3 syncSupportUsers.py')
+# if os.path.isfile('syncSupportUsers.py'):
+#    os.system('python3 syncSupportUsers.py')
