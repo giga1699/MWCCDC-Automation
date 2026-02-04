@@ -138,6 +138,8 @@ mantisProjects = mantis.getAllProjects()['projects']
 if debug:
     print(mantisProjects)
 
+
+## Black team
 # Get a list of black team usernames from authentik
 payload = json.dumps({
     "include_children": True,
@@ -190,6 +192,9 @@ for userObj in response.json()['users_obj']:
         except Exception as ex:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding Mantis user {userObj["username"]} to project {project["id"]}.\r\nException:```\r\n{ex}\r\n```')
 
+
+
+## Green team
 # Get a list of green team usernames from authentik
 payload = json.dumps({
     "include_children": True,
@@ -241,6 +246,8 @@ for userObj in response.json()['users_obj']:
             mantis.addUserToProject(userObj['username'], project['id'], 'manager')
         except Exception as ex:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding Mantis user {userObj["username"]} to project {project["id"]}.\r\nException:```\r\n{ex}\r\n```')
+
+
 
 ## RED TEAM
 # Get a list of green team usernames from authentik
