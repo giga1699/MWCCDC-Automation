@@ -7,10 +7,11 @@ import re
 import json
 import csv
 import requests
+import sys
 import ccdchelpers
 
 # Set this to provide debugging output
-debug = False
+debug = True
 
 # Should we check Zulip group memberships? Probably not since bots can't look at that specific endpoint. Will fail safe if there's an issue
 checkZulipGroupMembership = True
@@ -116,10 +117,18 @@ if os.getenv('zulipOrangeChannelRegex'):
 if os.getenv('zulipGreenChannelRegex'):
     zulipGreenChannelRegex=os.getenv('zulipGreenChannelRegex')
 
+downloadTeamPass = False
+for arg in sys.argv[1:]:
+    if "=" in arg:
+        key, val = arg.split("=", 1)
+        if key == "downloadTeamPass":
+            if debug:
+                print(f'Going to download the compTeamInfo.txt file from URL {val}')
+            downloadTeamPass = val
 
-# Download the team password CSV, if the environment variable exists
-if os.getenv('teamPassDownloadURL'):
-    url = os.getenv('teamPassDownloadURL')
+# Download the team password CSV if downloadTeamPass is present, or if the environment variable exists
+if downloadTeamPass or os.getenv('teamPassDownloadURL'):
+    url = downloadTeamPass if downloadTeamPass else os.getenv('teamPassDownloadURL')
     if debug:
         print(f'Downloading team password CSV from "{url}"')
     
