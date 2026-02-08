@@ -237,6 +237,23 @@ class CCDCZulip:
 
         # Return the JSON output
         return response.json()
+    
+    def getUploadFileURL(self, userUploadPath):
+        # Take a given URL that is from a zulip file upload, and get a short-term public URL for downloading the file
+        if self.debug:
+            print(f'Trying to get Zulip public URL for {userUploadPath}')
+        while True:
+            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1" + str(userUploadPath))
+
+            if self.debug:
+                print(response.status_code, response.text)
+            
+            if not self.zulipBackoff(response):
+                break
+        
+        self.checkError(response)
+
+        return response.json()['url']
 
     def isUserInGroup(self, userID, groupID):
         # Check if the user is a member of the specified group

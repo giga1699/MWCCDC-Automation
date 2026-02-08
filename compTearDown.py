@@ -7,6 +7,7 @@ import re
 import json
 import csv
 import requests
+import sys
 import ccdchelpers
 
 # Set this to provide debugging output
@@ -132,6 +133,43 @@ authentikHeaders = {
   'Authorization': 'Bearer ' + os.getenv('authentikToken')
 }
 authentikDomain = os.getenv('authDomain')
+
+# Check if we have a sys argument passed to download the compTeamInfo.txt file; To start out, support downloading the copy sent to zulip ops chat
+downloadCompTeamInfo = False
+for arg in sys.argv[1:]:
+    if "=" in arg:
+        key, val = arg.split("=", 1)
+        if key == "compTeamInfoURL":
+            if debug:
+                print(f'Going to download the compTeamInfo.txt file from URL {val}')
+            downloadCompTeamInfo = val
+
+if downloadCompTeamInfo:
+    if re.search(os.getenv('zulipDomain'), downloadCompTeamInfo):
+        # The file is on the chat server, get a temp zulip URL to download it
+        uploadPath = str(re.search("\/user_uploads\/.*", downloadCompTeamInfo).group())
+        if uploadPath:
+            publicCompTeamInfoURL = zulip.getUploadFileURL(uploadPath)
+            if debug:
+                print(f'Got public Zulip URL: {publicCompTeamInfoURL}')
+            
+            # Download the file locally
+            dl = requests.get("https://" + os.getenv('zulipDomain') + publicCompTeamInfoURL)
+
+            try:
+                with open(compTeamInfoTXT, "wb") as f:
+                    f.write(dl.content)
+            except:
+                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "**ERROR**: Unable to download the Zulip compTeamInfo.txt file.")
+                exit(-1)
+        else:
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "**ERROR**: Unable to parse the Zulip user upload location to download the compTeamInfo.txt file.")
+            exit(-1)
+        
+    else:
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "**ERROR**: Currently only support downloading a file from the chat server.")
+        exit(-1)
+
 
 # Let's start closing out everything that was previously setup
 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "We're tearin' it down!")
