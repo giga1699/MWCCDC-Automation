@@ -11,7 +11,7 @@ import sys
 import ccdchelpers
 
 # Set this to provide debugging output
-debug = True
+debug = False
 
 # Should we check Zulip group memberships? Probably not since bots can't look at that specific endpoint. Will fail safe if there's an issue
 checkZulipGroupMembership = True
