@@ -28,6 +28,7 @@ teamUserDomainName="@comp.ccdc.events"
 zulipOperationsChannel="operations"
 zulipOperationsTopic="automation-messages"
 zulipOperationsGroup="Black Team"
+zulipOperationsMantisChannel="CCDC Support"
 zulipBlueGroupRegex="Team \d+"
 zulipBlueChannelRegex="Team \d+ Chat"
 zulipBlueAnnounceTopic="automation-messages"
@@ -97,6 +98,8 @@ if os.getenv('zulipOperationsTopic'):
     zulipOperationsChannel=os.getenv('zulipOperationsTopic')
 if os.getenv('zulipOperationsGroup'):
     zulipOperationsGroup=os.getenv('zulipOperationsGroup')
+if os.getenv('zulipOperationsMantisChannel'):
+    zulipOperationsGroup=os.getenv('zulipOperationsMantisChannel')
 if os.getenv('zulipBlueGroupRegex'):
     zulipBlueGroupRegex=os.getenv('zulipBlueGroupRegex')
 if os.getenv('zulipBlueChannelRegex'):
@@ -179,7 +182,7 @@ for userObj in response.json()['users_obj']:
     
     try:
         for channel in zulipChannels:
-            if re.match(zulipOperationsChannel, channel['name']) and zulipUserID:
+            if (re.match(zulipOperationsChannel, channel['name']) or re.match(zulipOperationsMantisChannel, channel['name'])) and zulipUserID:
                 zulipAdmin.subscribeUserToChannel(zulipUserID, channel['name'])
     except Exception as ex:
         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding zulip ID {zulipUserID} to black team channel(s).\r\nException:```\r\n{ex}\r\n```')
