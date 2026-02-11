@@ -149,7 +149,7 @@ if debug:
 payload = json.dumps({
     "include_children": True,
 })
-response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterBlackGroup}/', headers=authentikHeaders, data=payload)
+response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterBlackGroup}/', headers=authentikHeaders, params=payload)
 if debug:
     print(response.status_code, response.text)
 
@@ -204,7 +204,7 @@ for userObj in response.json()['users_obj']:
 payload = json.dumps({
     "include_children": True,
 })
-response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterGreenGroup}/', headers=authentikHeaders, data=payload)
+response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterGreenGroup}/', headers=authentikHeaders, params=payload)
 if debug:
     print(response.status_code, response.text)
 
@@ -258,7 +258,7 @@ for userObj in response.json()['users_obj']:
 payload = json.dumps({
     "include_children": True,
 })
-response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterWhiteGroup}/', headers=authentikHeaders, data=payload)
+response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterWhiteGroup}/', headers=authentikHeaders, params=payload)
 if debug:
     print(response.status_code, response.text)
 
@@ -300,7 +300,7 @@ for userObj in response.json()['users_obj']:
 payload = json.dumps({
     "include_children": True,
 })
-response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterRedGroup}/', headers=authentikHeaders, data=payload)
+response = requests.request("GET", f'https://{authentikDomain}/api/v3/core/groups/{authentikMasterRedGroup}/', headers=authentikHeaders, params=payload)
 if debug:
     print(response.status_code, response.text)
 
