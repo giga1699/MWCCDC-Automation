@@ -136,7 +136,7 @@ zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Trying t
 # Get Zulip channels
 zulipChannels = zulipAdmin.getAllChannels()['streams']
 if debug:
-    print(zulipChannels)
+    print(json.dumps(zulipChannels, indent=2))
 
 # Get Mantis projects
 mantisProjects = mantis.getAllProjects()['projects']

@@ -104,8 +104,10 @@ class CCDCZulip:
         while True:
             zulipPayload = {
                 "include_all": "true",
+                "exclude_archived": "false",
+                "include_can_access_content": "true",
             }
-            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/streams", data=zulipPayload)
+            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/streams", params=zulipPayload)
             
             if self.debug:
                 print(response.text)
@@ -125,7 +127,7 @@ class CCDCZulip:
             zulipPayload = {
                 "allow_empty_topic_name": "true",
             }
-            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/users/me/" + str(channelID) + "/topics", data=zulipPayload)
+            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/users/me/" + str(channelID) + "/topics", params=zulipPayload)
 
             if self.debug:
                 print(response.text)
@@ -184,7 +186,7 @@ class CCDCZulip:
             zulipPayload = {
                 "include_deactivated_groups": "true",
             }
-            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/user_groups", data=zulipPayload)
+            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/user_groups", params=zulipPayload)
             
             if self.debug:
                 print(response.text)
@@ -204,7 +206,7 @@ class CCDCZulip:
             zulipPayload = {
                 "include_custom_profile_fields": "true",
             }
-            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/users", data=zulipPayload)
+            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/users", params=zulipPayload)
             
             if self.debug:
                 print(response.text)
@@ -261,7 +263,7 @@ class CCDCZulip:
             zulipPayload = {
                 "direct_member_only": "true",
             }
-            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/user_groups/" + str(groupID) + "/members/" + str(userID), data=zulipPayload)
+            response = requests.request("GET", "https://" + self.zulipEmail + ":" + self.zulipToken + "@" + self.zulipDomain + "/api/v1/user_groups/" + str(groupID) + "/members/" + str(userID), params=zulipPayload)
             
             if self.debug:
                 print(response.text)
