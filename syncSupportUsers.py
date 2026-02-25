@@ -137,7 +137,7 @@ authentikHeaders = {
 authentikDomain = os.getenv('authDomain')
 
 # Let's start closing out everything that was previously setup
-zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Trying to sync support (green/black/white/red) users from auth to Zulip/Mantis...")
+zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Trying to sync support (green/orange/black/white/red) users from auth to Zulip/Mantis...")
 
 # Get Zulip channels
 zulipChannels = zulipAdmin.getAllChannels()['streams']
