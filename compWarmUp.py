@@ -29,6 +29,7 @@ zulipBlueChannelRegex="Team \d+ Chat"
 zulipBlueAnnounceTopic="automation-messages"
 zulipOrangeChannelRegex="Team \d+ Orange"
 zulipGreenChannelRegex="Team \d+ Support"
+zulipRedChannelRegex="Team \d+ IR"
 
 # You may need to change the below according to your own Zulip install. Unfortunately bots can't get groups :(
 defaultZulipGroups = {
@@ -116,6 +117,8 @@ if os.getenv('zulipOrangeChannelRegex'):
     zulipOrangeChannelRegex=os.getenv('zulipOrangeChannelRegex')
 if os.getenv('zulipGreenChannelRegex'):
     zulipGreenChannelRegex=os.getenv('zulipGreenChannelRegex')
+if os.getenv('zulipRedChannelRegex'):
+    zulipGreenChannelRegex=os.getenv('zulipRedChannelRegex')
 
 downloadTeamPass = False
 for arg in sys.argv[1:]:
@@ -246,7 +249,7 @@ with open(teamPassCSV, newline='') as file:
 
         # Let's iterate through the channels, look for the team number, and add those channels to the dict as well
         for name, id in zulipChannels.items():
-            if re.match(zulipBlueChannelRegex, name) or re.match(zulipOrangeChannelRegex, name) or re.match(zulipGreenChannelRegex, name):
+            if re.match(zulipBlueChannelRegex, name) or re.match(zulipOrangeChannelRegex, name) or re.match(zulipGreenChannelRegex, name) or re.match(zulipRedChannelRegex, name):
                 # We found a channel that seems to match the regex; Let's look for the team number in the channel name now
                 if re.search(userInfo['teamNum'], name):
                     # We found what is likely a team channel; add it to the compTeamInfo
