@@ -35,6 +35,7 @@ zulipBlueChannelRegex="Team \d+ Chat"
 zulipBlueAnnounceTopic="automation-messages"
 zulipOrangeChannelRegex="Team \d+ Orange"
 zulipGreenChannelRegex="Team \d+ Support"
+zulipRedChannelRegex="Team \d+ IR"
 compTeamInfoTXT="compTeamInfo.txt"
 
 # You may need to change the below according to your own Zulip install. Unfortunately bots can't get groups :(
@@ -113,6 +114,8 @@ if os.getenv('zulipOrangeChannelRegex'):
     zulipOrangeChannelRegex=os.getenv('zulipOrangeChannelRegex')
 if os.getenv('zulipGreenChannelRegex'):
     zulipGreenChannelRegex=os.getenv('zulipGreenChannelRegex')
+if os.getenv('zulipRedChannelRegex'):
+    zulipGreenChannelRegex=os.getenv('zulipRedChannelRegex')
 
 # Output default values if debugging enabled
 if debug:
