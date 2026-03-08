@@ -170,6 +170,8 @@ if downloadCompTeamInfo:
         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "**ERROR**: Currently only support downloading a file from the chat server.")
         exit(-1)
 
+# Keep track of un-deleted Nextcloud users
+nonDeleteNextcloudUser = []
 
 # Let's start closing out everything that was previously setup
 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "We're tearin' it down!")
@@ -221,7 +223,8 @@ for team in compTeamInfo:
             try:
                 nextcloud.deleteUser(username)
             except Exception as ex:
-                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Issue deleting Nextcloud user {username}.\r\nException:\r\n```\r\n{ex}\r\n```')
+                #zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Issue deleting Nextcloud user {username}.\r\nException:\r\n```\r\n{ex}\r\n```')
+                nonDeleteNextcloudUser.append(username)
 
             # Look for Zulip user info
             if 'zulip' in userdata:
@@ -283,6 +286,9 @@ for team in compTeamInfo:
                 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to delete Mantis project with ID {compTeamInfo[team]["support"]["MantisProjID"]}.\r\nException:\r\n```{ex}\r\n```')
 
 
+# Notify ops if certain Nextcloud users couldn't be deleted
+if len(nonDeleteNextcloudUser) > 0:
+    zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'The following Nextcloud users couldn\'t be deleted, likely because they never logged in.\n```\n{nonDeleteNextcloudUser}\n```')
 
 # We're all done
 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "We tore it down!")
