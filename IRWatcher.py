@@ -59,6 +59,7 @@ if loginSubmit.status_code != 200:
 # print(loginSubmit.cookies.get_dict())
 
 knownIRs = []
+invalidIRs = []
 unknownIRs = False
 lastTotalIRs = 0
 
@@ -91,7 +92,7 @@ while True:
         teamNum = int(uploadSplit[5]) - 1
         fileName = uploadSplit[6]
 
-        if uploadURL not in knownIRs and not invalidInject:
+        if uploadURL not in knownIRs and uploadURL not in invalidIRs and not invalidInject:
             unknownIRs = True
 
             knownIRs.append(uploadURL)
@@ -100,8 +101,36 @@ while True:
 
             zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'@*Red Team* @*Team {teamNum:02}* A new IR report has been submitted\nLink: {niseURL}{uploadURL}')
 
+            try:
+                # Try to download file
+                fileDL = niseSession.get(f'{niseURL}{uploadURL}')
+
+                with open(fileName, 'wb') as f:
+                    f.write(fileDL.content)
+                
+                if os.path.isfile(fileName):
+                    # Try to upload file
+                    response = zulip.uploadFile(fileName)
+                    if response:
+                        zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'Copy of IR report: [{response["filename"]}]({response["url"]})')
+
+                    # Delete the file
+                    os.remove(fileName)
+            except Exception as ex:
+                zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, f'Failed to download/upload {fileName} for team {teamNum:02}')
+                print(ex)
+
         elif uploadURL in knownIRs and invalidInject:
             knownIRs.remove(uploadURL)
+            invalidIRs.append(uploadURL)
+
+            zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'This upload was marked as INVALID.')
+        
+        elif uploadURL in invalidIRs and not invalidInject:
+            invalidIRs.remove(uploadURL)
+            knownIRs.append(uploadURL)
+
+            zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'This upload was marked as VALID.')
     
     totalIRs = len(knownIRs)
 
