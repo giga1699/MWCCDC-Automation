@@ -99,7 +99,7 @@ while True:
             zulip.sendChannelMessage("white-team", "Inject Monitor", f'Inject "{injectName}" (NISE #{injectNum}) changed status from {injects[injectNum]["status"]} to {injectStatus}')
 
             if not ((injects[injectNum]["status"] == "pending" and injectStatus == "active") or (injects[injectNum]["status"] == "active" and injectStatus == "expired") or (injects[injectNum]["status"] == "active" and injectStatus == "rejecting") or (injects[injectNum]["status"] == "expired" and injectStatus == "rejecting")):
-                zulip.sendChannelMessage("white-team", "Inject Monitor", f'@**White Team** This may be an invalid inject state transition!')
+                zulip.sendChannelMessage("white-team", "Inject Monitor", f'@*White Team* This may be an invalid inject state transition!')
             
             if injects[injectNum]["status"] == "pending" and injectStatus == "active":
                 zulip.sendChannelMessage('Competition Announcements', 'Inject Alerts', f'@**everyone** An inject has just gone active!\nInject name: {injectName}\nInject due: {injectDue}\nInject reject: {injectReject}')
