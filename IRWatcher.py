@@ -101,24 +101,25 @@ while True:
 
             zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'@*Red Team* @*Team {teamNum:02}* A new IR report has been submitted\nLink: {niseURL}{uploadURL}')
 
-            try:
-                # Try to download file
-                fileDL = niseSession.get(f'{niseURL}{uploadURL}')
+            if os.getenv('copyIRtoZulip') == "True":
+                try:
+                    # Try to download file
+                    fileDL = niseSession.get(f'{niseURL}{uploadURL}')
 
-                with open(fileName, 'wb') as f:
-                    f.write(fileDL.content)
-                
-                if os.path.isfile(fileName):
-                    # Try to upload file
-                    response = zulip.uploadFile(fileName)
-                    if response:
-                        zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'Copy of IR report: [{response["filename"]}]({response["url"]})')
+                    with open(fileName, 'wb') as f:
+                        f.write(fileDL.content)
+                    
+                    if os.path.isfile(fileName):
+                        # Try to upload file
+                        response = zulip.uploadFile(fileName)
+                        if response:
+                            zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'Copy of IR report: [{response["filename"]}]({response["url"]})')
 
-                    # Delete the file
-                    os.remove(fileName)
-            except Exception as ex:
-                zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, f'Failed to download/upload {fileName} for team {teamNum:02}')
-                print(ex)
+                        # Delete the file
+                        os.remove(fileName)
+                except Exception as ex:
+                    zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, f'Failed to download/upload {fileName} for team {teamNum:02}')
+                    print(ex)
 
         elif uploadURL in knownIRs and invalidInject:
             knownIRs.remove(uploadURL)
@@ -135,6 +136,30 @@ while True:
     totalIRs = len(knownIRs)
 
     if unknownIRs or totalIRs != lastTotalIRs:
+        # Calculate IRs by team
+        teamCount = {}
+        for link in knownIRs:
+            teamCountNum = str(int(link.split('/')[5]) - 1)
+
+            if teamCountNum not in teamCount:
+                teamCount.update({teamCountNum: 1})
+            else:
+                teamCount.update({teamCountNum: teamCount[teamCountNum] + 1})
+        
+        if debug:
+            print(teamCount)
+        
+        # Send team breakdown to red-team channel
+        teamBreakdown = '| Team | IRs |\n| :---: | :---: |\n'
+        for team, count in teamCount.items():
+            teamBreakdown += f'| {int(team):02} | {count} |\n'
+        
+        if debug:
+            print(teamBreakdown)
+        
+        zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, teamBreakdown)
+
+        # Send total valid IRs to red-team channel
         zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, f'Total uploads marked valid: {totalIRs}')
     
     print(f'Total uploads this check: {totalIRs}')
