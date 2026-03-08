@@ -112,4 +112,4 @@ while True:
     if debug:
         print(json.dumps(injects, indent=2))
 
-    sleep(10)
+    sleep(60)
