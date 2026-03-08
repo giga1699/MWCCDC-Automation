@@ -4,6 +4,9 @@ import requests
 import re
 import json
 from time import sleep
+import ccdczulip
+
+debug=False
 
 # Load .env file if it exists
 if os.path.isfile(".env"):
@@ -17,10 +20,17 @@ irUploadRegex = "<a href=\"\/files\/inject\/8\/submission\/[0-9]+\/.*\" class=\"
 irUploadURLRegex = "\/files\/inject\/8\/submission\/[0-9]+\/.*(?=\" class=\"table_link\">)"
 invalidRegex = "<s>.*<\/s>"
 
+zulipRedTeamChannel="red-team"
+zulipRedTopic="IR Reports"
+
 niseURL = os.getenv("NISEURL")
 irPage = niseURL + "/injects/" + str(os.getenv("IRWatcherInjectNum")) + "/"
 
-webhookURL = os.getenv("IRWatcherWebhook")
+# Create the Zulip connection
+zulip = ccdczulip.CCDCZulip(os.getenv('zulipIREmail'), os.getenv('zulipIRToken'), debug=debug)
+zulipAdmin = ccdczulip.CCDCZulip(os.getenv('zulipAdminEmail'), os.getenv('zulipAdminToken'), debug=debug)
+
+zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, "Starting IR watcher...")
 
 niseSession = requests.Session()
 
@@ -52,12 +62,15 @@ knownIRs = []
 unknownIRs = False
 lastTotalIRs = 0
 
+zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, "IR watcher logged into NISE, and begining monitor loop.")
+
 # Monitor loop
 while True:
 
     irResults = niseSession.get(irPage)
 
     if irResults.status_code != 200:
+        zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, "Error getting IR results page. Exiting!")
         raise Exception(f'Error getting IR results page.\nStatus code: {irResults.status_code}\nText: {irResults.text}')
         exit(-1)
 
@@ -85,34 +98,15 @@ while True:
             message = f'Team {teamNum} submitted {fileName}\nLink: {niseURL}{uploadURL}'
             # print(message)
 
-            webhookHeaders = {
-                "Content-Type": "application/json",
-            }
-            webhookData = {
-                "text": message,
-            }
-            # print(webhookData)
+            zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'@*Red Team* @*Team {teamNum:02}* A new IR report has been submitted\nLink: {niseURL}{uploadURL}')
 
-            sendWebhook = requests.request("POST", webhookURL, headers=webhookHeaders, data=json.dumps(webhookData))
-            if sendWebhook.status_code != 200:
-                print(f'Status code: {sendWebhook.status_code}\nText: {sendWebhook.text}')
         elif uploadURL in knownIRs and invalidInject:
             knownIRs.remove(uploadURL)
     
     totalIRs = len(knownIRs)
 
     if unknownIRs or totalIRs != lastTotalIRs:
-        webhookHeaders = {
-            "Content-Type": "application/json",
-        }
-        webhookData = {
-            "text": f'Total uploads marked valid: {totalIRs}',
-        }
-        # print(webhookData)
-
-        sendWebhook = requests.request("POST", webhookURL, headers=webhookHeaders, data=json.dumps(webhookData))
-        if sendWebhook.status_code != 200:
-            print(f'Status code: {sendWebhook.status_code}\nText: {sendWebhook.text}')
+        zulip.sendChannelMessage(zulipRedTeamChannel, zulipRedTopic, f'Total uploads marked valid: {totalIRs}')
     
     print(f'Total uploads this check: {totalIRs}')
 
