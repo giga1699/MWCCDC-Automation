@@ -424,7 +424,7 @@ with open(teamPassCSV, newline='') as file:
             for channel in compTeamInfo[userInfo['teamNum']]['channels']:
                 if re.match(zulipBlueChannelRegex, channel):
                     try:
-                        zulip.sendChannelMessage(channel, zulipBlueAnnounceTopic, f'Created short upload link for Team {userInfo["teamNum"]}: {shortURL}')
+                        zulip.sendChannelMessage(channel, zulipBlueAnnounceTopic, f'Created short upload link for Team {userInfo["teamNum"]}: {shortURL}\nFull link: {uploadLink}')
                         blueTeamNotifyUploadLink = True
                     except Exception as ex:
                         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN** Unable to send Team {userInfo["teamNum"]} a message in channel {channel}, topic {zulipBlueAnnounceTopic}, about their short link.')
