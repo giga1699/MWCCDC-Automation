@@ -417,7 +417,7 @@ with open(teamPassCSV, newline='') as file:
             compTeamInfo[userInfo['teamNum']]['urls'].update({"Nextcloud-Upload-Share-Short": shortURL})
 
             # Send short code to ops for awareness
-            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'Created short upload link for Team {userInfo["teamNum"]}: {shortURL}')
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'Created short upload link for Team {userInfo["teamNum"]}: {shortURL}\nFull link: {uploadLink}')
 
             # Figure out blue team channel, and notify them of the short URL
             blueTeamNotifyUploadLink = False
