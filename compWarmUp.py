@@ -424,14 +424,16 @@ with open(teamPassCSV, newline='') as file:
             for channel in compTeamInfo[userInfo['teamNum']]['channels']:
                 if re.match(zulipBlueChannelRegex, channel):
                     try:
+                        linkID = uploadLink.split('/')[-1]
                         zulip.sendChannelMessage(channel, zulipBlueAnnounceTopic, f'Created short upload link for Team {userInfo["teamNum"]}: {shortURL}\nFull link: {uploadLink}')
+                        zulip.sendChannelMessage(channel, zulipBlueAnnounceTopic, f'To upload from curl, try the following command...\n```\ncurl -T <filename> -u "{linkID}:" -H "X-Requested-With: XMLHttpRequest" https://{os.getenv("ncDomain")}/public.php/dav/files/{linkID}/<filename>\n```')
                         blueTeamNotifyUploadLink = True
                     except Exception as ex:
-                        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN** Unable to send Team {userInfo["teamNum"]} a message in channel {channel}, topic {zulipBlueAnnounceTopic}, about their short link.')
+                        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN** Unable to send Team {userInfo["teamNum"]} a message in channel {channel}, topic {zulipBlueAnnounceTopic}, about their short link.\nException:\n```\n{ex}\n```')
                         if debug:
                             print(ex)
             if not blueTeamNotifyUploadLink:
-                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN** Unable to send Team {userInfo["teamNum"]} a message in channel {channel}, topic {zulipBlueAnnounceTopic}, about their short link. Couldn\'t find their channel!')
+                zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN** Unable to send Team {userInfo["teamNum"]} a message in channel {channel}, topic {zulipBlueAnnounceTopic}, about their short link. Couldn\'t find their channel?')
             
             # Write short link out to text file
             with open("Team-" + userInfo['teamNum'] + "-Upload-Link.txt", 'w') as f:
