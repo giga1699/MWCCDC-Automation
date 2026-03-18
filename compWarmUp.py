@@ -126,7 +126,7 @@ for arg in sys.argv[1:]:
         key, val = arg.split("=", 1)
         if key == "downloadTeamPass":
             if debug:
-                print(f'Going to download the compTeamInfo.txt file from URL {val}')
+                print(f'Going to download the teampasswords.csv file from URL {val}')
             downloadTeamPass = val
 
 # Download the team password CSV if downloadTeamPass is present, or if the environment variable exists
@@ -436,8 +436,8 @@ with open(teamPassCSV, newline='') as file:
                 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN** Unable to send Team {userInfo["teamNum"]} a message in channel {channel}, topic {zulipBlueAnnounceTopic}, about their short link. Couldn\'t find their channel?')
             
             # Write short link out to text file
-            with open("Team-" + userInfo['teamNum'] + "-Upload-Link.txt", 'w') as f:
-                f.write(f'Team {userInfo["teamNum"]} Upload Link: {shortURL}')
+            # with open("Team-" + userInfo['teamNum'] + "-Upload-Link.txt", 'w') as f:
+            #     f.write(f'Team {userInfo["teamNum"]} Upload Link: {shortURL}')
 
         except Exception as ex:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error creating short upload link for Team {userInfo["teamNum"]}.\r\nException:\r\n```\r\n{ex}\r\n```')
@@ -571,6 +571,8 @@ if os.path.isfile("compTeamInfo.txt"):
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to upload the compTeamInfo.txt file!')
         else:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'Resulting compTeamInfo: [{response["filename"]}]({response["url"]})')
+            # Remove local copy of compTeamInfo.txt since we uploaded successfully to Zulip
+            os.remove("compTeamInfo.txt")
     except Exception as ex:
         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to upload the compTeamInfo.txt file!\r\n```\r\n{ex}\r\n```')
         print(ex)
