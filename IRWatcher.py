@@ -16,8 +16,8 @@ username = os.getenv("NISEUser")
 password = os.getenv("NISEPass")
 
 loginTokenRegex = "(?<=<input type=\"hidden\" name=\"csrfmiddlewaretoken\" value=\").*(?=\">)"
-irUploadRegex = "<a href=\"\/files\/inject\/8\/submission\/[0-9]+\/.*\" class=\"table_link\">\n.*\n.*\n.*\n.*<\/a>"
-irUploadURLRegex = "\/files\/inject\/8\/submission\/[0-9]+\/.*(?=\" class=\"table_link\">)"
+irUploadRegex = "<a href=\"\/files\/inject\/" + str(os.getenv("IRWatcherInjectNum")) + "\/submission\/[0-9]+\/.*\" class=\"table_link\">\n.*\n.*\n.*\n.*<\/a>"
+irUploadURLRegex = "\/files\/inject\/" + str(os.getenv("IRWatcherInjectNum")) + "\/submission\/[0-9]+\/.*(?=\" class=\"table_link\">)"
 invalidRegex = "<s>.*<\/s>"
 
 zulipRedTeamChannel="red-team"
