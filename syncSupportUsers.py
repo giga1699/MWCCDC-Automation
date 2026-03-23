@@ -379,7 +379,7 @@ for userObj in response.json()['users_obj']:
     
     try:
         for channel in zulipChannels:
-            if (re.match("red-team", channel['name']) or re.match(zulipRedChannelRegex, channel['name'])) and zulipUserID:
+            if (re.match("red-team", channel['name']) or re.match("red-memes", channel['name']) or re.match(zulipRedChannelRegex, channel['name'])) and zulipUserID:
                 zulipAdmin.subscribeUserToChannel(zulipUserID, channel['name'])
     except Exception as ex:
         zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Error adding zulip ID {zulipUserID} to red team channel(s).\r\nException:```\r\n{ex}\r\n```')
