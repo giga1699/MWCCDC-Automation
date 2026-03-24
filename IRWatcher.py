@@ -5,6 +5,7 @@ import re
 import json
 from time import sleep
 import ccdczulip
+import operator
 
 debug=False
 
@@ -151,7 +152,7 @@ while True:
         
         # Send team breakdown to red-team channel
         teamBreakdown = '| Team | IRs |\n| :---: | :---: |\n'
-        for team, count in teamCount.items():
+        for team, count in dict(sorted(teamCount.items())).items():
             teamBreakdown += f'| {int(team):02} | {count} |\n'
         
         if debug:
