@@ -150,8 +150,6 @@ if downloadTeamPass or os.getenv('teamPassDownloadURL'):
     except:
         print(f'Unable to download the team password CSV! Exiting...')
         exit(-1)
-    
-    exit(0)
 
 # Output default values if debugging enabled
 if debug:
