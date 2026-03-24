@@ -135,6 +135,13 @@ if downloadTeamPass or os.getenv('teamPassDownloadURL'):
     if debug:
         print(f'Downloading team password CSV from "{url}"')
     
+    # Check for a Nextcloud link
+    if re.search(os.getenv('ncDomain'), url):
+        # Download the file from Nextcloud
+        # Need to transform the link first
+        shareID = url.split('/')[-1]
+        url = f'https://{os.getenv("ncDomain")}/public.php/dav/files/{shareID}'
+    
     r = requests.get(url)
 
     try:
@@ -143,6 +150,8 @@ if downloadTeamPass or os.getenv('teamPassDownloadURL'):
     except:
         print(f'Unable to download the team password CSV! Exiting...')
         exit(-1)
+    
+    exit(0)
 
 # Output default values if debugging enabled
 if debug:
