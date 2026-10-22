@@ -100,7 +100,7 @@ while True:
             message = f'Team {teamNum} submitted {fileName}\nLink: {niseURL}{uploadURL}'
             # print(message)
 
-            zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'@*Red Team* @*Team {teamNum:02}* A new IR report has been submitted\nLink: {niseURL}{uploadURL}')
+            zulip.sendChannelMessage(f'Team {teamNum:02} IR', fileName, f'A new IR report has been submitted\nLink: {niseURL}{uploadURL}')
 
             if os.getenv('copyIRtoZulip') == "True":
                 try:
