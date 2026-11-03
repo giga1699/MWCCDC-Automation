@@ -121,6 +121,8 @@ if os.getenv('zulipRedChannelRegex'):
     zulipGreenChannelRegex=os.getenv('zulipRedChannelRegex')
 
 downloadTeamPass = False
+vantageApiKey = False
+vantageExtAccount = False
 for arg in sys.argv[1:]:
     if "=" in arg:
         key, val = arg.split("=", 1)
@@ -128,9 +130,11 @@ for arg in sys.argv[1:]:
             if debug:
                 print(f'Going to download the teampasswords.csv file from URL {val}')
             downloadTeamPass = val
+        elif key == "vantageApiKey":
+            vantageApiKey = val
+        elif key == "vantageExtAccount":
+            vantageExtAccount = val
 
-# Download it from Vantage
-# curl -s -H "X-API-Key: <admin-key>" https://vantage.ccdc.events/api/ext-accounts/CCDCAuth
 # Download the team password CSV if downloadTeamPass is present, or if the environment variable exists
 if downloadTeamPass or os.getenv('teamPassDownloadURL'):
     url = downloadTeamPass if downloadTeamPass else os.getenv('teamPassDownloadURL')
@@ -151,6 +155,28 @@ if downloadTeamPass or os.getenv('teamPassDownloadURL'):
             f.write(r.content)
     except:
         print(f'Unable to download the team password CSV! Exiting...')
+        exit(-1)
+
+# Download it from Vantage
+# curl -s -H "X-API-Key: <admin-key>" https://vantage.ccdc.events/api/ext-accounts/CCDCAuth
+try:
+    if vantageApiKey and vantageExtAccount:
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'Attempting to download the {vantageExtAccount} external accounts from Vantage')
+        vantageHeaders = {
+            'X-API-Key': vantageApiKey
+        }
+        vantageCSV = requests.get(f'https://vantage.ccdc.events/api/ext-accounts/{vantageExtAccount}', headers=vantageHeaders)
+        if vantageCSV.status_code != 200:
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'Error downloading from Vantage!\n```\n{vantageCSV}\n```\nExiting...')
+            exit(-1)
+        
+        csvFile = open(teamPassCSV, "w")
+        csvFile.write(vantageCSV.text)
+        csvFile.close()
+
+except Exception as e:
+    if debug:
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'Exception downloading from Vantage!\n```\n{e}\n```\nExiting...')
         exit(-1)
 
 # Output default values if debugging enabled
