@@ -129,6 +129,8 @@ for arg in sys.argv[1:]:
                 print(f'Going to download the teampasswords.csv file from URL {val}')
             downloadTeamPass = val
 
+# Download it from Vantage
+# curl -s -H "X-API-Key: <admin-key>" https://vantage.ccdc.events/api/ext-accounts/CCDCAuth
 # Download the team password CSV if downloadTeamPass is present, or if the environment variable exists
 if downloadTeamPass or os.getenv('teamPassDownloadURL'):
     url = downloadTeamPass if downloadTeamPass else os.getenv('teamPassDownloadURL')

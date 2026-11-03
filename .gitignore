@@ -3,3 +3,4 @@ __pycache__/
 teampasswords.csv
 compTeamInfo.txt
 Team-*-Upload-Link.txt
+*.git-credentials
