@@ -34,7 +34,7 @@ if os.getenv('zulipOperationsGroup'):
     zulipOperationsGroup=os.getenv('zulipOperationsGroup')
 
 niseURL = os.getenv("NISEURL")
-usersPage = niseURL + "/users/"
+
 nisePassCSV = "NISE.csv"
 
 # Create the Zulip connection
@@ -73,7 +73,7 @@ except Exception as e:
         exit(-1)
 
 # Load user/pass CSV
-
+usersPage = niseURL + "/users/"
 NISEUsers = {}
 # Check that the CSV file exists
 if not os.path.isfile(nisePassCSV):
