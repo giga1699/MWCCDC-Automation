@@ -120,7 +120,6 @@ if os.getenv('zulipGreenChannelRegex'):
 if os.getenv('zulipRedChannelRegex'):
     zulipGreenChannelRegex=os.getenv('zulipRedChannelRegex')
 
-downloadTeamPass = False
 vantageApiKey = False
 vantageExtAccount = False
 for arg in sys.argv[1:]:
@@ -134,28 +133,6 @@ for arg in sys.argv[1:]:
             vantageApiKey = val
         elif key == "vantageExtAccount":
             vantageExtAccount = val
-
-# Download the team password CSV if downloadTeamPass is present, or if the environment variable exists
-if downloadTeamPass or os.getenv('teamPassDownloadURL'):
-    url = downloadTeamPass if downloadTeamPass else os.getenv('teamPassDownloadURL')
-    if debug:
-        print(f'Downloading team password CSV from "{url}"')
-    
-    # Check for a Nextcloud link
-    if re.search(os.getenv('ncDomain'), url):
-        # Download the file from Nextcloud
-        # Need to transform the link first
-        shareID = url.split('/')[-1]
-        url = f'https://{os.getenv("ncDomain")}/public.php/dav/files/{shareID}'
-    
-    r = requests.get(url)
-
-    try:
-        with open(teamPassCSV, 'wb') as f:
-            f.write(r.content)
-    except:
-        print(f'Unable to download the team password CSV! Exiting...')
-        exit(-1)
 
 # Download it from Vantage
 # curl -s -H "X-API-Key: <admin-key>" https://vantage.ccdc.events/api/ext-accounts/CCDCAuth
