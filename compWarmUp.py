@@ -56,6 +56,7 @@ defaultZulipGroups = {
     "Team 18": 130,
     "Team 19": 134,
     "Team 20": 138,
+    "Team 21": 597,
     "White Team": 208,
     "Orange Team": 294,
     "State Directors": 471,
