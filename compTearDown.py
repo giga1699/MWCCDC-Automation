@@ -177,6 +177,17 @@ nonDeleteNextcloudUser = []
 # Let's start closing out everything that was previously setup
 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "We're tearin' it down!")
 
+# Get all of the zulip channels
+zulipChannels = {}
+for channel in zulip.getAllChannels()['streams']:
+    if debug:
+        print(f'Channel "{channel["name"]}" has ID {channel["stream_id"]}')
+    
+    zulipChannels.update({channel['name']: channel['stream_id']})
+
+if debug:
+    print(zulipChannels)
+
 # Load the compTeamInfo from the warm-up
 if os.path.isfile(compTeamInfoTXT):
     with open(compTeamInfoTXT, 'r') as file:
@@ -286,6 +297,26 @@ for team in compTeamInfo:
             except Exception as ex:
                 zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Unable to delete Mantis project with ID {compTeamInfo[team]["support"]["MantisProjID"]}.\r\nException:\r\n```{ex}\r\n```')
 
+# Clear out competition announcements and general
+for name, id in zulipChannels.items():
+    if name == "Competition Announcements":
+        zullip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Clearing out Competition Announcements...")
+        try:
+            topics = zulip.getChannelTopics(id)
+            if topics:
+                for topic in topics:
+                    zulip.deleteChannelTopic(id, topic)
+        except Exception as ex:
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t clear out Zulip channel messages for channel "Competition Announcements".\r\nException:\r\n```\r\n{ex}\r\n```')
+    elif name == "general":
+        zullip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Clearing out general chat...")
+        try:
+            topics = zulip.getChannelTopics(id)
+            if topics:
+                for topic in topics:
+                    zulip.deleteChannelTopic(id, topic)
+        except Exception as ex:
+            zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t clear out Zulip channel messages for channel "general".\r\nException:\r\n```\r\n{ex}\r\n```')
 
 # Notify ops if certain Nextcloud users couldn't be deleted
 if len(nonDeleteNextcloudUser) > 0:
