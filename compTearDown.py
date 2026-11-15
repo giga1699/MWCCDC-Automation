@@ -300,7 +300,7 @@ for team in compTeamInfo:
 # Clear out competition announcements and general
 for name, id in zulipChannels.items():
     if name == "Competition Announcements":
-        zullip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Clearing out Competition Announcements...")
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Clearing out Competition Announcements...")
         try:
             topics = zulip.getChannelTopics(id)
             if topics:
@@ -309,7 +309,7 @@ for name, id in zulipChannels.items():
         except Exception as ex:
             zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, f'**WARN**: Couldn\'t clear out Zulip channel messages for channel "Competition Announcements".\r\nException:\r\n```\r\n{ex}\r\n```')
     elif name == "general":
-        zullip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Clearing out general chat...")
+        zulip.sendChannelMessage(zulipOperationsChannel, zulipOperationsTopic, "Clearing out general chat...")
         try:
             topics = zulip.getChannelTopics(id)
             if topics:
